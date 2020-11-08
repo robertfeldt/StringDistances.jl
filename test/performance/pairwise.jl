@@ -39,6 +39,7 @@ else
     println("Creating $N random strings.")
     SaveCache = true
     String[randstring(rand(3:Maxlength)) for _ in 1:N]
+    SaveCache = true
 end
 
 if length(S) < N
