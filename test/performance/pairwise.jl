@@ -40,6 +40,7 @@ else
     SaveCache = true
     String[randstring(rand(3:Maxlength)) for _ in 1:N]
     SaveCache = true
+    String[randstring(rand(3:Maxlength)) for _ in 1:N]
 end
 
 if length(S) < N
