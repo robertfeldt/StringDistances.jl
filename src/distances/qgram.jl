@@ -428,7 +428,6 @@ calculate(d::MorisitaOverlap, c::FiveCounters{Int, MorisitaOverlap}) =
 
 """
 	NMD(q::Int)
-	NMD(q::Int)
 
 Creates a NMD (Normalized Multiset Distance) as introduced by Besiris and
 Zigouris 2013. The goal with this distance is to behave similarly to a normalized
