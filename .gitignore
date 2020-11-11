@@ -3,3 +3,4 @@ PC25
 Manifest.toml
 draft
 test/performance/*.juliabin
+.vscode/
