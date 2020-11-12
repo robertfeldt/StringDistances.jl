@@ -170,37 +170,6 @@ using StringDistances, Unicode, Test, Random
 		@test ismissing(evaluate(NMD(1), "", missing))
 	end
 
-	@testset "QGramDict and QGramSortedVector counts qgrams" begin
-		# To get something we can more easily compare to:
-		stringify(p::Pair{<:AbstractString, <:Integer}) = (string(first(p)), last(p))
-		stringify(p::Pair{V, <:Integer}) where {S<:AbstractString,V<:AbstractVector{S}} = (map(string, first(p)), last(p))
-		sortedcounts(qc) = sort(collect(StringDistances.counts(qc)), by = first)
-		totuples(qc) = map(stringify, sortedcounts(qc))
-
-		s1, s2   = "arnearne", "arnebeda"
-
-		qd1, qd2 = QGramDict(s1, 2), QGramDict(s2, 2)
-		@test totuples(qd1) == [("ar", 2), ("ea", 1), ("ne", 2), ("rn", 2)]
-		@test totuples(qd2) == [("ar", 1), ("be", 1), ("da", 1), ("eb", 1), ("ed", 1), ("ne", 1), ("rn", 1)]
-
-		qc1, qc2 = QGramSortedVector(s1, 2), QGramSortedVector(s2, 2)
-		@test totuples(qc1) == [("ar", 2), ("ea", 1), ("ne", 2), ("rn", 2)]
-		@test totuples(qc2) == [("ar", 1), ("be", 1), ("da", 1), ("eb", 1), ("ed", 1), ("ne", 1), ("rn", 1)]
-
-		s3 = "rgówów"
-		qd3a = QGramDict(s3, 2)
-		@test totuples(qd3a) == [("gó", 1), ("rg", 1), ("wó", 1), ("ów", 2)]
-
-		qd3b = QGramDict(graphemes(s3), 2)
-		@test totuples(qd3b) == [(["g", "ó"], 1), (["r", "g"], 1), (["w", "ó"], 1), (["ó", "w"], 2)]
-
-		qc3a = QGramSortedVector(s3, 2)
-		@test totuples(qc3a) == [("gó", 1), ("rg", 1), ("wó", 1), ("ów", 2)]
-
-		qd3b = QGramDict(graphemes(s3), 2)
-		@test totuples(qd3b) == [(["g", "ó"], 1), (["r", "g"], 1), (["w", "ó"], 1), (["ó", "w"], 2)]
-	end
-
 	function partlyoverlappingstrings(sizerange, chars = nothing)
 		l = rand(sizerange)
 		str1 = isnothing(chars) ? randstring(l) : randstring(chars, l)
@@ -220,20 +189,20 @@ using StringDistances, Unicode, Test, Random
 			str1, str2 = partlyoverlappingstrings(6:100, Chars)
 			d = Jaccard(qlen)
 
-			qd1 = QGramDict(str1, qlen)
-			qd2 = QGramDict(str2, qlen)
+			qd1 = WordDictionary(str1, qlen)
+			qd2 = WordDictionary(str2, qlen)
 			@test evaluate(d, str1, str2) == evaluate(d, qd1, qd2)
 
-			qd1b = QGramDict(graphemes(str1), qlen)
-			qd2b = QGramDict(graphemes(str2), qlen)
+			qd1b = WordDictionary(graphemes(str1), qlen)
+			qd2b = WordDictionary(graphemes(str2), qlen)
 			@test evaluate(d, str1, str2) == evaluate(d, qd1b, qd2b)
 
-			qc1 = QGramSortedVector(str1, qlen)
-			qc2 = QGramSortedVector(str2, qlen)
+			qc1 = WordSortedVector(str1, qlen)
+			qc2 = WordSortedVector(str2, qlen)
 			@test evaluate(d, str1, str2) == evaluate(d, qc1, qc2)
 
-			qc1b = QGramSortedVector(graphemes(str1), qlen)
-			qc2b = QGramSortedVector(graphemes(str2), qlen)
+			qc1b = WordSortedVector(graphemes(str1), qlen)
+			qc2b = WordSortedVector(graphemes(str2), qlen)
 			@test evaluate(d, str1, str2) == evaluate(d, qc1b, qc2b)
 		end
 	end
@@ -251,23 +220,23 @@ using StringDistances, Unicode, Test, Random
 		@test !isnan(evaluate(Jaccard(3), "str1", "st2"))
 	end
 
-	@testset "Differential testing of String, QGramDict, and QGramSortedVector" begin
+	@testset "Differential testing of String, WordDictionary, and WordSortedVector" begin
 		for D in [QGram, Cosine, Jaccard, SorensenDice, Overlap, MorisitaOverlap, NMD]
 			for _ in 1:100
 				qlen = rand(2:9)
 				dist = D(qlen)
 				str1, str2 = partlyoverlappingstrings(10:10000)
 
-				# QGramDict gets same result as for standard string
-				qd1 = QGramDict(str1, qlen)
-				qd2 = QGramDict(str2, qlen)
+				# WordDictionary gets same result as for standard string
+				wd1 = WordDictionary(str1, qlen)
+				wd2 = WordDictionary(str2, qlen)
 				expected = evaluate(dist, str1, str2)
-				@test expected == evaluate(dist, qd1, qd2)
+				@test expected == evaluate(dist, wd1, wd2)
 
 				# QGramSortedVector gets same result as for standard string
-				qc1 = QGramSortedVector(str1, qlen)
-				qc2 = QGramSortedVector(str2, qlen)
-				@test expected == evaluate(dist, qc1, qc2)
+				wc1 = WordSortedVector(str1, qlen)
+				wc2 = WordSortedVector(str2, qlen)
+				@test expected == evaluate(dist, wc1, wc2)
 			end
 		end
 	end

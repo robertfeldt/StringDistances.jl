@@ -54,7 +54,7 @@ function findnearest(s, itr, dist::StringDistance; min_score = 0.0)
 end
 
 function _helper(s, dist::QGramDistance)
-    s !== missing ? QGramSortedVector(s, dist.q) : s
+    s !== missing ? preprocess(dist, s) : s
 end
 _helper(s, dist::StringDistance) = s
 

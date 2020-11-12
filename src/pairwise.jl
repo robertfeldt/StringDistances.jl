@@ -73,9 +73,9 @@ function Distances.pairwise!(R::AbstractMatrix, dist::StringDistance, xs::Abstra
         _asymmetric_pairwise!(R, dist, xs, xs; preprocess = preprocess)
 end
 
-function _preprocess(xs, dist::QGramDistance, preprocess)
-    if (preprocess === true) || (isnothing(preprocess) && length(xs) >= 5)
-        return map(x -> x === missing ? x : QGramSortedVector(x, dist.q), xs)
+function _preprocess(xs, dist::QGramDistance, shouldpreprocess)
+    if (shouldpreprocess === true) || (isnothing(shouldpreprocess) && length(xs) >= 5)
+        return map(x -> x === missing ? x : preprocess(dist, x), xs)
     else
         return xs
     end

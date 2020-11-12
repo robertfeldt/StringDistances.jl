@@ -1,5 +1,12 @@
-using StringDistances, Random
-using BenchmarkTools
+using Pkg, BenchmarkTools, Random
+
+if length(ARGS) > 2 && ARGS[3] == "local"
+    Pkg.activate(pwd())
+end
+using StringDistances
+
+println("isdefined(StringDistances, :QGramDict) = ", isdefined(StringDistances, :QGramDict))
+println("isdefined(StringDistances, :WordDictionary) = ", isdefined(StringDistances, :WordDictionary))
 
 N = if length(ARGS) > 0
     try
@@ -55,10 +62,17 @@ if SaveCache
     serialize(CacheFile, S)
 end
 
+S = S[1:N]
 
-println("For ", Threads.nthreads(), " threads and ", N, " strings of max length ", Maxlength, ":")
+DT = if length(ARGS) == 4
+    StringDistances.eval(Symbol(ARGS[4]))
+else
+    Cosine
+end
 
-dist = Cosine(2)
+dist = DT(2)
+println("Distance = ", dist)
+println("For ", Threads.nthreads(), " threads and ", length(S), " strings of max length ", Maxlength, ":")
 t1 = @belapsed dm1 = pairwise(dist, S; preprocess = false)
 t2 = @belapsed dm2 = pairwise(dist, S; preprocess = true)
 
